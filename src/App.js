@@ -6,20 +6,20 @@ import useHttp from './hooks/use-http';
 
 function App() {
   const [tasks, setTasks] = useState([]);
-  const httpData = useHttp({
-    url: 'https://react-http-154f5-default-rtdb.firebaseio.com/tasks.json'
-  }, (data) => {
-    const loadedTasks = [];
-
-    for (const taskKey in data) {
-      loadedTasks.push({ id: taskKey, text: data[taskKey].text });
-    }
-    setTasks(loadedTasks);
-  });
+  const {isLoading, error, sendRequest} = useHttp();
 
   useEffect(() => {
-    httpData.sendRequest();
-  }, []);
+    sendRequest({
+      url: 'https://react-http-154f5-default-rtdb.firebaseio.com/tasks.json'
+    }, (data) => {
+      const loadedTasks = [];
+  
+      for (const taskKey in data) {
+        loadedTasks.push({ id: taskKey, text: data[taskKey].text });
+      }
+      setTasks(loadedTasks);
+    });
+  }, [sendRequest]);
 
   const taskAddHandler = (task) => {
     setTasks((prevTasks) => prevTasks.concat(task));
@@ -30,9 +30,9 @@ function App() {
       <NewTask onAddTask={taskAddHandler} />
       <Tasks
         items={tasks}
-        loading={httpData.isLoading}
-        error={httpData.error}
-        onFetch={httpData.sendRequest}
+        loading={isLoading}
+        error={error}
+        onFetch={sendRequest}
       />
     </React.Fragment>
   );
